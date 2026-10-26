@@ -55,8 +55,12 @@ func findEnvTemplate() string {
 }
 
 // envTemplateHasVar reports whether the given variable name is documented in the
-// template file.
+// template file. Caps file reading at 1MB to prevent unbounded memory consumption.
 func envTemplateHasVar(path, varName string) bool {
+	info, err := os.Stat(path)
+	if err != nil || info.IsDir() || info.Size() > 1024*1024 {
+		return false
+	}
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return false

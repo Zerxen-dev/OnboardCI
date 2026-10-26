@@ -97,9 +97,12 @@ if command -v sha256sum >/dev/null 2>&1; then
   ACTUAL_SHA="$(sha256sum "${TMPDIR}/${ASSET_NAME}" | awk '{print $1}')"
 elif command -v shasum >/dev/null 2>&1; then
   ACTUAL_SHA="$(shasum -a 256 "${TMPDIR}/${ASSET_NAME}" | awk '{print $1}')"
+else
+  echo "Error: Neither sha256sum nor shasum is available to verify archive integrity." >&2
+  exit 1
 fi
 
-if [ -n "${ACTUAL_SHA}" ] && [ "${EXPECTED_SHA}" != "${ACTUAL_SHA}" ]; then
+if [ "${EXPECTED_SHA}" != "${ACTUAL_SHA}" ]; then
   echo "Error: Checksum mismatch for ${ASSET_NAME}!" >&2
   echo "Expected: ${EXPECTED_SHA}" >&2
   echo "Got:      ${ACTUAL_SHA}" >&2

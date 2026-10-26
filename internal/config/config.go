@@ -4,9 +4,17 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 	"time"
 
 	"gopkg.in/yaml.v3"
+)
+
+var (
+	userRegex   = regexp.MustCompile(`^[a-zA-Z0-9._-]+(:[a-zA-Z0-9._-]+)?$`)
+	cpusRegex   = regexp.MustCompile(`^[0-9]+(\.[0-9]+)?$`)
+	memoryRegex = regexp.MustCompile(`^[0-9]+[bkmgBKMG]?$`)
 )
 
 // DockerConfig holds sandbox execution settings.
@@ -121,5 +129,27 @@ func LoadConfig(cwd string, customPath string) (*Config, string, error) {
 		cfg.Docker.Timeout = parsedTimeout
 	}
 
+	if err := validateConfig(cfg); err != nil {
+		return nil, "", fmt.Errorf("invalid configuration in %s: %w", targetPath, err)
+	}
+
 	return cfg, targetPath, nil
+}
+
+func validateConfig(cfg *Config) error {
+	if cfg.Docker.User != "" && !userRegex.MatchString(cfg.Docker.User) {
+		return fmt.Errorf("invalid docker user %q: must match [user[:group]] format without shell metacharacters", cfg.Docker.User)
+	}
+	if cfg.Docker.CPUs != "" && !cpusRegex.MatchString(cfg.Docker.CPUs) {
+		return fmt.Errorf("invalid docker cpus %q: must be a numeric value (e.g. 2.0)", cfg.Docker.CPUs)
+	}
+	if cfg.Docker.Memory != "" && !memoryRegex.MatchString(cfg.Docker.Memory) {
+		return fmt.Errorf("invalid docker memory %q: must be a valid memory limit (e.g. 2g, 512m)", cfg.Docker.Memory)
+	}
+	if cfg.Docker.Image != "" {
+		if strings.ContainsAny(cfg.Docker.Image, " \t\n\r;$\"&|<>'`\\") {
+			return fmt.Errorf("invalid docker image %q: contains illegal characters", cfg.Docker.Image)
+		}
+	}
+	return nil
 }

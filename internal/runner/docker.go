@@ -53,6 +53,8 @@ func (r *DockerRunner) Run(ctx context.Context, cwd string, cfg *config.Config, 
 		"--user", cfg.Docker.User,
 		"--cpus", cfg.Docker.CPUs,
 		"--memory", cfg.Docker.Memory,
+		"--security-opt", "no-new-privileges",
+		"--pids-limit", "1024",
 		"--network", "bridge",
 		"-w", "/workspace",
 		cfg.Docker.Image,
@@ -79,9 +81,11 @@ func (r *DockerRunner) Run(ctx context.Context, cwd string, cfg *config.Config, 
 	}
 
 	// 3. Copy repository into /workspace (NO host bind mounts)
-	// First ensure /workspace exists and is owned by non-root user
-	initPermsCmd := exec.CommandContext(ctx, "docker", "exec", "--user", "0:0", containerName, "sh", "-c", "mkdir -p /workspace && chown -R "+cfg.Docker.User+" /workspace")
-	_ = initPermsCmd.Run()
+	// First ensure /workspace exists and is owned by non-root user (direct commands, no shell interpolation)
+	mkdirCmd := exec.CommandContext(ctx, "docker", "exec", "--user", "0:0", containerName, "mkdir", "-p", "/workspace")
+	_ = mkdirCmd.Run()
+	initChownCmd := exec.CommandContext(ctx, "docker", "exec", "--user", "0:0", containerName, "chown", "-R", cfg.Docker.User, "/workspace")
+	_ = initChownCmd.Run()
 
 	cpCmd := exec.CommandContext(ctx, "docker", "cp", cwd+"/.", containerName+":/workspace/")
 	if out, err := cpCmd.CombinedOutput(); err != nil {

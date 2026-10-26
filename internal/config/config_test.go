@@ -98,3 +98,71 @@ setup: [invalid: yaml:
 		t.Fatalf("expected error for invalid yaml, got nil")
 	}
 }
+
+func TestLoadConfig_SecurityValidation(t *testing.T) {
+	tests := []struct {
+		name    string
+		yaml    string
+		wantErr bool
+	}{
+		{
+			name: "malicious user command injection",
+			yaml: "docker:\n  user: \"1000; rm -rf /\"\n",
+			wantErr: true,
+		},
+		{
+			name: "malicious user with spaces",
+			yaml: "docker:\n  user: \"root /workspace\"\n",
+			wantErr: true,
+		},
+		{
+			name: "valid user:group format",
+			yaml: "docker:\n  user: \"1000:1000\"\n",
+			wantErr: false,
+		},
+		{
+			name: "valid username:groupname",
+			yaml: "docker:\n  user: \"node:node\"\n",
+			wantErr: false,
+		},
+		{
+			name: "invalid cpus with flag injection",
+			yaml: "docker:\n  cpus: \"--privileged\"\n",
+			wantErr: true,
+		},
+		{
+			name: "valid numeric cpus",
+			yaml: "docker:\n  cpus: \"2.5\"\n",
+			wantErr: false,
+		},
+		{
+			name: "invalid memory format",
+			yaml: "docker:\n  memory: \"2gb; reboot\"\n",
+			wantErr: true,
+		},
+		{
+			name: "valid memory size",
+			yaml: "docker:\n  memory: \"512m\"\n",
+			wantErr: false,
+		},
+		{
+			name: "malicious image with shell chars",
+			yaml: "docker:\n  image: \"node:20; curl evil.com\"\n",
+			wantErr: true,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			tmp := t.TempDir()
+			path := filepath.Join(tmp, ".onboardci.yml")
+			if err := os.WriteFile(path, []byte(tc.yaml), 0644); err != nil {
+				t.Fatalf("failed to write yaml: %v", err)
+			}
+			_, _, err := config.LoadConfig(tmp, "")
+			if (err != nil) != tc.wantErr {
+				t.Errorf("LoadConfig() error = %v, wantErr %v", err, tc.wantErr)
+			}
+		})
+	}
+}
