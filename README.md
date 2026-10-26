@@ -200,6 +200,18 @@ Check Flags:
 
 ---
 
+## Case Studies
+
+We benchmarked OnboardCI against popular open-source repositories across Go, Python, and TypeScript to evaluate real-world documentation extraction accuracy:
+
+- [**pelletier/go-toml**](docs/case-studies/pelletier-go-toml.md) (Go, 1,998 ★): Extracted test & benchmark commands from `CONTRIBUTING.md`.
+- [**pyupio/safety**](docs/case-studies/pyupio-safety.md) (Python, 2,000 ★): Discovered environment setup steps; validated need for [Python preset (#1)](https://github.com/Zerxen-dev/OnboardCI/issues/1).
+- [**TypeStrong/fork-ts-checker-webpack-plugin**](docs/case-studies/fork-ts-checker-webpack-plugin.md) (TypeScript, 2,000 ★): Captured contributor `yarn install`; discovered consumer installation false-positive edge case ([Issue #6](https://github.com/Zerxen-dev/OnboardCI/issues/6)).
+
+Read the full analysis and raw CLI outputs in the [Case Studies Index](docs/case-studies/README.md).
+
+---
+
 ## Non-Goals
 
 To maintain a zero-bloat developer tool, OnboardCI explicitly avoids:
