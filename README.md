@@ -9,10 +9,14 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Zerxen-dev/onboardci/actions"><img src="https://img.shields.io/badge/build-passing-22C55E?style=flat-square" alt="Build Status" /></a>
+  <a href="https://github.com/Zerxen-dev/OnboardCI/actions/workflows/test.yml"><img src="https://github.com/Zerxen-dev/OnboardCI/actions/workflows/test.yml/badge.svg" alt="CI" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square" alt="License" /></a>
   <a href="assets/brand.md"><img src="https://img.shields.io/badge/brand-guidelines-0B1220?style=flat-square" alt="Brand Guidelines" /></a>
   <img src="https://img.shields.io/badge/telemetry-zero-22c55e?style=flat-square" alt="Zero Telemetry" />
+</p>
+
+<p align="center">
+  <strong>Status</strong>: Alpha — core check works; language presets limited to Node and generic shell.
 </p>
 
 ---
@@ -26,6 +30,14 @@ Most open-source onboarding guides rot over time: an unmentioned environment var
 2. Extracts documented setup and test commands with exact line provenance.
 3. Executes them sequentially inside a fresh, isolated Docker container (non-root, timeout-enforced, with no host bind mounts).
 4. Produces actionable failure diagnostics pointing to the exact documentation line and missing requirement.
+
+---
+
+## Prerequisites
+
+- **Go 1.22+** (for building from source)
+- **Docker** (required only for `--execute`; dry-run works without it)
+- **`gh` CLI** (optional, only for the GitHub Action publishing step)
 
 ---
 
@@ -167,6 +179,7 @@ Global Flags:
       --timeout string   Execution timeout (e.g. 10m, 300s) (default "10m")
 
 Check Flags:
+      --dry-run          List extracted commands without executing (default behavior)
       --execute          Execute extracted commands inside Docker sandbox
       --json             Output machine-readable JSON format
 ```
@@ -195,6 +208,18 @@ The official visual identity, geometry, palette hex codes, and usage rules are d
 | **Monochrome Mark** | <img src="assets/logo-mono.png" width="48" height="48" alt="Mono" /> | [SVG](assets/logo-mono.svg) • [PNG](assets/logo-mono.png) | 512 × 512 px |
 | **Favicon** | <img src="assets/favicon-64.png" width="32" height="32" alt="Favicon" /> | [SVG](assets/favicon.svg) • [PNG](assets/favicon.png) • [64px](assets/favicon-64.png) | 32 × 32 px / 64 × 64 px |
 | **Social Preview** | <img src="assets/social-preview.png" width="180" alt="Social Preview" /> | [SVG](assets/social-preview.svg) • [PNG](assets/social-preview.png) | 1280 × 640 px |
+
+---
+
+## Roadmap
+
+We track upcoming feature additions and presets via GitHub Issues. Key roadmap priorities:
+
+- [ ] [Issue #1: Add Python/pip language preset](https://github.com/Zerxen-dev/OnboardCI/issues/1) — Detect `requirements.txt` / `pyproject.toml`, default to `python:3.12-slim`, run `pip install -r requirements.txt` then `pytest`.
+- [ ] [Issue #2: Add .env.example missing-var detector](https://github.com/Zerxen-dev/OnboardCI/issues/2) — When `--execute` fails with a missing env var, check for `.env.example` and suggest it in the report.
+- [ ] [Issue #3: Add Docker Compose service support](https://github.com/Zerxen-dev/OnboardCI/issues/3) — Allow `.onboardci.yml` to declare `compose: docker-compose.test.yml` and start background services before running setup.
+- [ ] [Issue #4: Improve --json reporter](https://github.com/Zerxen-dev/OnboardCI/issues/4) — Emit stable schema with standardized diagnostic fields; document schema in `docs/json-schema.md`.
+- [ ] [Issue #5: Add onboardci init command](https://github.com/Zerxen-dev/OnboardCI/issues/5) — Generate a starter `.onboardci.yml` by scanning the repository for common setup files.
 
 ---
 

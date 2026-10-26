@@ -17,6 +17,7 @@ import (
 
 var (
 	flagExecute bool
+	flagDryRun  bool
 	flagJSON    bool
 )
 
@@ -31,6 +32,7 @@ Pass --execute to run commands inside an isolated Docker container.`,
 
 func init() {
 	checkCmd.Flags().BoolVar(&flagExecute, "execute", false, "Execute extracted commands inside Docker sandbox")
+	checkCmd.Flags().BoolVar(&flagDryRun, "dry-run", false, "List extracted commands without executing (default behavior)")
 	checkCmd.Flags().BoolVar(&flagJSON, "json", false, "Output machine-readable JSON format")
 }
 
@@ -83,7 +85,7 @@ func runCheck(cmd *cobra.Command, args []string) error {
 	}
 
 	var activeRunner runner.Runner
-	if flagExecute {
+	if flagExecute && !flagDryRun {
 		activeRunner = runner.NewDockerRunner()
 	} else {
 		activeRunner = runner.NewDryRunner()

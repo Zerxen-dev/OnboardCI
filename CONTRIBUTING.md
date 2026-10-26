@@ -83,6 +83,18 @@ OnboardCI's visual identity is strictly geometric and self-contained:
 
 ---
 
+## Setting the Repository Social Preview
+
+GitHub does not provide a REST API endpoint for uploading repository OpenGraph social cards. Maintainers can set the card manually via the GitHub web UI:
+
+1. Navigate to repository **Settings** (`https://github.com/Zerxen-dev/OnboardCI/settings`).
+2. Under **General**, scroll down to the **Social preview** section.
+3. Click **Edit** → **Upload an image...**.
+4. Select `assets/social-preview.png` (1280×640 px).
+
+
+---
+
 ## Submitting a Pull Request
 
 1. Fork the repository and create a feature branch (`git checkout -b feat/my-improvement`).

@@ -4,6 +4,7 @@ package runner_test
 
 import (
 	"context"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -17,9 +18,16 @@ import (
 )
 
 func TestIntegration_BrokenRepoFailure(t *testing.T) {
-	fixtureDir, err := filepath.Abs("../../testdata/fixtures/broken-repo")
+	fixtureDir, err := filepath.Abs("../../testdata/fixtures/broken-env")
 	if err != nil {
 		t.Fatalf("failed to resolve fixture directory: %v", err)
+	}
+	if _, err := os.Stat(fixtureDir); err != nil {
+		// Fallback to broken-repo if broken-env does not exist
+		fixtureDir, err = filepath.Abs("../../testdata/fixtures/broken-repo")
+		if err != nil {
+			t.Fatalf("failed to resolve fallback fixture directory: %v", err)
+		}
 	}
 
 	cfg, _, err := config.LoadConfig(fixtureDir, "")
@@ -48,7 +56,12 @@ func TestIntegration_BrokenRepoFailure(t *testing.T) {
 		t.Log("Docker daemon active: executing in real Docker sandbox")
 		r = runner.NewDockerRunner()
 	} else {
-		t.Log("Docker daemon unavailable: executing through simulated runner engine")
+		// Guard: In CI or when explicitly required, fail loudly if Docker is missing so CI truth is visible
+		if os.Getenv("CI") != "" || os.Getenv("REQUIRE_DOCKER") != "" {
+			t.Fatalf("Docker daemon is required for integration tests in CI/strict mode, but 'docker info' failed")
+		}
+
+		t.Log("Docker daemon unavailable: executing through simulated runner engine (non-CI)")
 		r = runner.NewMockRunner(map[string]runner.MockStepResponse{
 			"npm install": {
 				ExitCode: 0,
