@@ -1,0 +1,82 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+version: 2
+
+project_name: onboardci
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: onboardci
+    main: ./cmd/onboardci
+    binary: onboardci
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X github.com/Zerxen-dev/onboardci/internal/cli.Version={{ .Version }}
+
+archives:
+  - id: default
+    format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README.md
+      - LICENSE
+
+checksum:
+  name_template: "checksums.txt"
+
+nfpms:
+  - id: packages
+    package_name: onboardci
+    vendor: Zerxen-dev
+    homepage: https://github.com/Zerxen-dev/OnboardCI
+    maintainer: Zerxen-dev <noreply@github.com>
+    description: Verify onboarding and setup docs inside container sandboxes
+    license: Apache-2.0
+    formats:
+      - deb
+      - rpm
+    bindir: /usr/local/bin
+
+brews:
+  - name: onboardci
+    repository:
+      owner: Zerxen-dev
+      name: homebrew-tap
+      branch: main
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+    skip_upload: auto
+    directory: Formula
+    homepage: https://github.com/Zerxen-dev/OnboardCI
+    description: Verify that new contributors can actually set up your open-source repo by following your docs.
+    license: Apache-2.0
+    test: |
+      system "#{bin}/onboardci", "--help"
+
+release:
+  github:
+    owner: Zerxen-dev
+    name: OnboardCI
+  draft: false
+  prerelease: auto
+  mode: replace
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'

@@ -22,44 +22,14 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '>=1.23'
+          cache: true
 
-      - name: Build Cross-Platform Binaries
-        env:
-          CGO_ENABLED: 0
-        run: |
-          mkdir -p dist
-          TAG_NAME=${GITHUB_REF#refs/tags/}
-
-          TARGETS=(
-            "linux/amd64/onboardci"
-            "linux/arm64/onboardci"
-            "darwin/amd64/onboardci"
-            "darwin/arm64/onboardci"
-            "windows/amd64/onboardci.exe"
-          )
-
-          for TARGET in "${TARGETS[@]}"; do
-            IFS="/" read -r OS ARCH BIN <<< "$TARGET"
-            OUTPUT="dist/onboardci_${TAG_NAME}_${OS}_${ARCH}"
-            echo "Building for $OS/$ARCH..."
-            GOOS=$OS GOARCH=$ARCH go build -ldflags="-s -w -X github.com/Zerxen-dev/onboardci/internal/cli.Version=${TAG_NAME#v}" -o "$BIN" ./cmd/onboardci
-            if [ "$OS" = "windows" ]; then
-              zip "${OUTPUT}.zip" "$BIN"
-            else
-              tar -czf "${OUTPUT}.tar.gz" "$BIN"
-            fi
-            rm -f "$BIN"
-          done
-
-          cd dist
-          sha256sum * > checksums.txt
-          cd ..
-
-      - name: Create GitHub Release
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: '~> v2'
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          TAG_NAME=${GITHUB_REF#refs/tags/}
-          gh release create "$TAG_NAME" dist/* \
-            --title "OnboardCI $TAG_NAME" \
-            --notes "Production release of OnboardCI $TAG_NAME. See README.md for installation instructions."
+          TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
