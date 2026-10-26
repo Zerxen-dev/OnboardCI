@@ -18,6 +18,13 @@ import (
 )
 
 func TestIntegration_BrokenRepoFailure(t *testing.T) {
+	if os.Getenv("CI") == "" && testing.Short() {
+		t.Skip("skipping integration test in -short mode")
+	}
+	if _, err := exec.LookPath("docker"); err != nil {
+		t.Fatal("integration test requires Docker; install Docker or run with -short")
+	}
+
 	fixtureDir, err := filepath.Abs("../../testdata/fixtures/broken-env")
 	if err != nil {
 		t.Fatalf("failed to resolve fixture directory: %v", err)
