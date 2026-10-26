@@ -63,6 +63,20 @@ func TestDiagnoseFailure_MissingEnvVar(t *testing.T) {
 	}
 }
 
+func changeWorkingDir(t *testing.T, dir string) {
+	t.Helper()
+	oldWd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("failed to get current working directory: %v", err)
+	}
+	if err := os.Chdir(dir); err != nil {
+		t.Fatalf("failed to change directory to %s: %v", dir, err)
+	}
+	t.Cleanup(func() {
+		_ = os.Chdir(oldWd)
+	})
+}
+
 func TestDiagnoseFailure_MissingEnvVar_WithEnvExample(t *testing.T) {
 	tmpDir := t.TempDir()
 	content := "# Configuration template\nDATABASE_URL=postgres://user:pass@localhost:5432/mydb\nPORT=3000\n"
@@ -70,7 +84,7 @@ func TestDiagnoseFailure_MissingEnvVar_WithEnvExample(t *testing.T) {
 		t.Fatalf("failed to write .env.example: %v", err)
 	}
 
-	t.Chdir(tmpDir)
+	changeWorkingDir(t, tmpDir)
 
 	output := "Error: missing env var DATABASE_URL\n    at Object.<anonymous> (/app/index.js:12:15)"
 	reason, suggestion := runner.DiagnoseFailure(output, 1)
@@ -91,7 +105,7 @@ func TestDiagnoseFailure_MissingEnvVar_WithEnvSample(t *testing.T) {
 		t.Fatalf("failed to write .env.sample: %v", err)
 	}
 
-	t.Chdir(tmpDir)
+	changeWorkingDir(t, tmpDir)
 
 	output := "TypeError: missing env var STRIPE_API_KEY"
 	reason, suggestion := runner.DiagnoseFailure(output, 1)
@@ -112,7 +126,7 @@ func TestDiagnoseFailure_MissingEnvVar_NotInTemplate(t *testing.T) {
 		t.Fatalf("failed to write .env.example: %v", err)
 	}
 
-	t.Chdir(tmpDir)
+	changeWorkingDir(t, tmpDir)
 
 	output := "Error: missing env var REDIS_URL"
 	reason, suggestion := runner.DiagnoseFailure(output, 1)
