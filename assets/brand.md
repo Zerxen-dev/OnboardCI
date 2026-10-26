@@ -83,3 +83,22 @@ For the wordmark and official collateral, OnboardCI pairs geometric typography w
 - Do not revert to literal checkboxes, clipboards, or outlined square glyphs.
 - Do not apply drop shadows, rainbow gradients, or glowing neon filters.
 - Do not alter the proportions or skew the gateway angles.
+
+---
+
+## 6. Accessibility & Human Checklist (WCAG 2.1 AA / AAA)
+
+Every visual asset and UI element is audited under `antislop-human` principles:
+
+| Element | Pairing | Ratio | Status |
+|---|---|:---:|:---:|
+| **Logo Mark & Focus Accents** | `#22C55E` on `#0B1220` | **8.22:1** | **PASS** (AAA Graphical & Text) |
+| **Hero Title & Primary Text** | `#F8FAFC` on `#0B1220` | **17.89:1** | **PASS** (AAA Normal & Large) |
+| **Social Card Subtitle** | `#94A3B8` on `#0B1220` | **7.30:1** | **PASS** (AAA Normal & Large) |
+| **Badge Content Text** | `#F8FAFC` on `#1E293B` | **13.98:1** | **PASS** (AAA Normal & Large) |
+| **Badge Boundary (Non-text)** | `#64748B` on `#0B1220` | **3.93:1** | **PASS** (WCAG 1.4.11 ≥ 3.0:1) |
+| **CLI Warning Diagnostics** | `#F59E0B` on `#0B1220` | **8.72:1** | **PASS** (AAA Normal & Large) |
+| **CLI Error Diagnostics** | `#EF4444` on `#0B1220` | **4.98:1** | **PASS** (AA Normal & Large) |
+
+* **Color-Only Elimination**: Error states never rely exclusively on color; all CLI diagnostics pair color with explicit textual prefixes (`FAIL:`, `PASS:`, `Command:`, `Reason:`, `Suggestion:`).
+* **Non-Text Contrast**: All graphical and component boundaries meet or exceed the 3.0:1 threshold.
