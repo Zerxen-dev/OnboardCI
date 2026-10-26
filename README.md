@@ -188,13 +188,13 @@ Read more in [docs/non-goals.md](docs/non-goals.md).
 
 The official visual identity, geometry, palette hex codes, and usage rules are detailed in [assets/brand.md](assets/brand.md).
 
-| Asset | Preview | Dimensions |
+| Asset | Formats | Dimensions |
 |---|---|---|
-| **Primary Mark** | `assets/logo.svg` | 512 × 512 px |
-| **Wordmark** | `assets/logo-wordmark.svg` | 960 × 240 px |
-| **Monochrome Mark** | `assets/logo-mono.svg` | 512 × 512 px |
-| **Favicon** | `assets/favicon.svg` | 32 × 32 px |
-| **Social Preview** | `assets/social-preview.svg` | 1280 × 640 px |
+| **Primary Mark** | [SVG](assets/logo.svg) • [PNG](assets/logo.png) • [1024px PNG](assets/logo-1024.png) | 512 × 512 px / 1024 × 1024 px |
+| **Wordmark** | [SVG](assets/logo-wordmark.svg) • [PNG](assets/logo-wordmark.png) | 960 × 240 px |
+| **Monochrome Mark** | [SVG](assets/logo-mono.svg) • [PNG](assets/logo-mono.png) | 512 × 512 px |
+| **Favicon** | [SVG](assets/favicon.svg) • [PNG](assets/favicon.png) | 32 × 32 px / 64 × 64 px |
+| **Social Preview** | [SVG](assets/social-preview.svg) • [PNG](assets/social-preview.png) | 1280 × 640 px |
 
 ---
 
