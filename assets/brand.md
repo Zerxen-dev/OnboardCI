@@ -1,7 +1,7 @@
 # OnboardCI Brand Identity Guidelines
 
 <p align="center">
-  <img src="logo-wordmark.svg" width="380" alt="OnboardCI Logo Wordmark" />
+  <img src="logo-wordmark.png" width="380" alt="OnboardCI Logo Wordmark" />
 </p>
 
 This document specifies the visual identity, architectural geometry, color palette, typography, clear-space rules, and usage policies for the OnboardCI open-source project.

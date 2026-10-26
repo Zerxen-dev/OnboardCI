@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo-wordmark.svg" alt="OnboardCI" width="400" />
+  <img src="assets/logo-wordmark.png" alt="OnboardCI" width="400" />
 </p>
 
 <p align="center">
