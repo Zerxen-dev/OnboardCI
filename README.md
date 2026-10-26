@@ -1,8 +1,6 @@
 <p align="center">
-  <img src="assets/logo.png" alt="OnboardCI Logo" width="160" />
+  <img src="assets/logo-wordmark.svg" alt="OnboardCI" width="400" />
 </p>
-
-<h1 align="center">OnboardCI</h1>
 
 <p align="center">
   <strong>Verify that new contributors can actually set up your repository by following only your docs.</strong>
@@ -230,7 +228,7 @@ The official visual identity, geometry, palette hex codes, and usage rules are d
 | Asset | Preview | Formats | Dimensions |
 |---|---|---|---|
 | **Primary Mark** | <img src="assets/logo.png" width="48" height="48" alt="Logo" /> | [SVG](assets/logo.svg) • [PNG](assets/logo.png) • [1024px PNG](assets/logo-1024.png) | 512 × 512 px / 1024 × 1024 px |
-| **Wordmark** | <img src="assets/logo-wordmark.png" width="160" alt="Wordmark" /> | [SVG](assets/logo-wordmark.svg) • [PNG](assets/logo-wordmark.png) | 960 × 240 px |
+| **Wordmark** | <img src="assets/logo-wordmark.png" width="160" alt="Wordmark" /> | [SVG](assets/logo-wordmark.svg) • [PNG](assets/logo-wordmark.png) | 640 × 160 px |
 | **Monochrome Mark** | <img src="assets/logo-mono.png" width="48" height="48" alt="Mono" /> | [SVG](assets/logo-mono.svg) • [PNG](assets/logo-mono.png) | 512 × 512 px |
 | **Favicon** | <img src="assets/favicon-64.png" width="32" height="32" alt="Favicon" /> | [SVG](assets/favicon.svg) • [PNG](assets/favicon.png) • [64px](assets/favicon-64.png) | 32 × 32 px / 64 × 64 px |
 | **Social Preview** | <img src="assets/social-preview.png" width="180" alt="Social Preview" /> | [SVG](assets/social-preview.svg) • [PNG](assets/social-preview.png) | 1280 × 640 px |

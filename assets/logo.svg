@@ -1,12 +1,31 @@
 <svg viewBox="0 0 512 512" role="img">
-  <title>OnboardCI Checkpoint Gate Logo</title>
-  <desc>A geometric checkpoint gate reading as a verification checkmark framed by container walls</desc>
-  <rect width="512" height="512" rx="96" fill="#0B1220"/>
-  <!-- Container Wall Framing Bars -->
-  <rect x="88" y="96" width="36" height="320" rx="12" fill="#22C55E"/>
-  <rect x="388" y="96" width="36" height="320" rx="12" fill="#22C55E"/>
-  <!-- Checkpoint Gate Canopy Lintel -->
-  <rect x="156" y="96" width="200" height="36" rx="12" fill="#22C55E"/>
-  <!-- Checkpoint Verification Threshold (Checkmark) -->
-  <path d="M164 260 L236 332 L348 172" fill="none" stroke="#22C55E" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+  <title>OnboardCI Abstract Gate Logo</title>
+  <desc>An abstract architectural gateway forming an open monogram O and verification checkmark</desc>
+  <rect width="512" height="512" rx="110" fill="#0B1220"/>
+  <!-- Left Foundation Pillar -->
+  <rect x="112" y="128" width="64" height="256" rx="20" fill="#22C55E"/>
+  <!-- Dynamic Upper Chevron (Gateway Canopy) -->
+  <path d="M 224 136
+           A 16 16 0 0 1 240 128
+           L 384 212
+           A 16 16 0 0 1 384 238
+           L 348 260
+           A 16 16 0 0 1 328 256
+           L 216 188
+           A 16 16 0 0 1 212 172
+           L 216 148
+           A 16 16 0 0 1 224 136 Z" fill="#22C55E"/>
+  <!-- Dynamic Verification Checkmark (Gateway Threshold) -->
+  <path d="M 220 288
+           L 272 360
+           A 20 20 0 0 0 304 360
+           L 404 180
+           A 16 16 0 0 0 388 156
+           L 352 156
+           A 16 16 0 0 0 338 166
+           L 288 288
+           L 252 244
+           A 16 16 0 0 0 228 244
+           L 216 260
+           A 16 16 0 0 0 220 288 Z" fill="#22C55E"/>
 </svg>

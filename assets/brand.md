@@ -1,90 +1,85 @@
 # OnboardCI Brand Identity Guidelines
 
 <p align="center">
-  <img src="logo.png" width="140" alt="OnboardCI Logo" />
+  <img src="logo-wordmark.svg" width="380" alt="OnboardCI Logo Wordmark" />
 </p>
 
-This document specifies the visual identity, design geometry, color palette, typography, clear-space rules, and usage policies for the OnboardCI open-source project.
+This document specifies the visual identity, architectural geometry, color palette, typography, clear-space rules, and usage policies for the OnboardCI open-source project.
 
 ---
 
-## 1. Concept & Geometric Construction
+## 1. Concept: The Abstract Gate
 
-The OnboardCI mark embodies a **checkpoint gate**:
-* **Container Walls**: Two sturdy vertical framing bars symbolizing the isolated, sandboxed environment (Docker container boundaries).
-* **The Threshold / Checkmark**: A gateway entrance threshold that seamlessly curves into an ascending verification checkmark.
-* **Core Metaphor**: "Verify at the gate" — every doc command and environment variable is validated before code enters production or developer setups.
+The visual identity of OnboardCI moves away from literal to-do list checkboxes and generic clipboard clipart toward an **abstract architectural gateway**.
+
+* **Metaphor & Reasoning**: "Moving from a literal checkbox to a dynamic gateway."
+  * Real onboarding is not just checking boxes; it is crossing a threshold into an open-source codebase.
+  * The mark constructs an open geometric monogram **O** (for *Onboard*) that simultaneously frames an architectural portal.
+* **The Foundation Pillar (Left)**: A confident, solid vertical monolith representing structural stability and container isolation (Docker sandbox boundary).
+* **The Chevron Canopy & Verification Threshold (Right)**: An angled entrance chevron (`>`) that sweeps downward into the gateway, paired with an ascending sharp checkmark (`✓`) clearing the contributor forward.
+* **Pure Solid Geometry**: No outlines, no strokes, no gradients. Heavy, confident solid shapes engineered for crisp visual impact at any scale.
 
 ### Grid & Dimensions
 * **Canvas Grid**: 512 × 512 px
-* **Safe Margin**: 64 px perimeter padding (artwork remains within 384 × 384 px active area)
-* **Corner Radius**: 8–12 px rounded corners at 512 px scale (4 px equivalent relative scale)
-* **Geometry**: Pure geometric vectors constructed with rounded rectangles, circles, and straight lines. No gradients, no dropshadows, no raster dependencies.
+* **Corner Radius**: `rx="110"` on app icon container
+* **Safe Margin**: 64 px perimeter safe zone
+* **Pillar Coordinates**: `x=112, y=128, w=64, h=256, rx=20`
+* **Optical Center**: Centered at `(256, 256)`
 
 ---
 
 ## 2. Color Palette
 
-The official color palette is defined below. These hex codes must be preserved across all implementations.
+The official color palette draws inspiration from high-contrast developer environments (e.g., Vercel, Linear, Supabase):
 
 | Token | Hex Value | Role | Usage |
 |---|---|---|---|
-| **Deep Ink** | `#0B1220` | Primary Dark Canvas | Backgrounds, dark mode canvases, terminal contrast base |
-| **Signal Green** | `#22C55E` | Verification / Pass | Checkpoint gate threshold, verified checks, primary accents |
-| **Warning Amber** | `#F59E0B` | Warning / Fail | Failed doc step alerts, missing env flag warnings |
-| **Paper White** | `#F8FAFC` | Light Canvas | Light mode canvas, documentation backgrounds, mono mark fill |
-| **Slate** | `#64748B` | Secondary Detail | Structural borders, container walls, secondary text |
+| **Deep Ink** | `#0B1220` | Canvas Base | Primary dark background, icon container, terminal contrast base |
+| **Signal Green** | `#22C55E` | Verification / Pass | Gateway mark, verified step indicators, primary brand accents |
+| **Paper White** | `#F8FAFC` | Typographic Lead | "Onboard" wordmark prefix, primary text, high-contrast monochrome mark |
+| **Slate** | `#64748B` | Secondary Detail | Subtitles, structural borders, secondary descriptions |
 
 ---
 
 ## 3. Typography Stack
 
-For wordmarks, promotional materials, and documentation:
+For the wordmark and official collateral, OnboardCI pairs geometric typography with deliberate font-weight contrast:
 
-* **Primary Wordmark & Headings**:
-  ```css
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  ```
+* **Wordmark Typography**:
+  - `font-family`: `Inter, system-ui, -apple-system, sans-serif`
+  - **"Onboard"**: `font-weight: 700` (Bold), Color: `#F8FAFC` (Paper White)
+  - **"CI"**: `font-weight: 400` (Regular/Normal), Color: `#22C55E` (Signal Green)
+  - Letter-spacing: `-1.5px` (Tight, modern tracking)
+
 * **Code & CLI Diagnostics**:
   ```css
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   font-weight: 500;
   ```
 
 ---
 
-## 4. Clear Space & Scaling Rules
+## 4. Official Asset Catalog
 
-* **Minimum Clear Space**: Maintain a buffer equal to the width of the vertical framing bar (64 px at 512 scale, or 12.5% of mark width) on all sides.
-* **Minimum Display Size**:
-  * Scaled Mark (`logo.svg`): Minimum 32 × 32 px.
-  * Favicon (`favicon.svg`): Optimized specifically for 32 × 32 px and 16 × 16 px rendering.
-* **High-Contrast Monochromatic Mark (`logo-mono.svg`)**:
-  * Designed to maintain high contrast on both `#0B1220` (Dark) and `#F8FAFC` (Light) backgrounds without color degradation.
+| Asset | File | Dimensions | Role |
+|---|---|---|---|
+| **Primary Icon Mark** | [`assets/logo.svg`](logo.svg) • [`PNG`](logo.png) | 512 × 512 px | App icon, profile avatars, release badges |
+| **Primary Wordmark** | [`assets/logo-wordmark.svg`](logo-wordmark.svg) • [`PNG`](logo-wordmark.png) | 640 × 160 px | README header, hero banners, site headers |
+| **Monochrome Mark** | [`assets/logo-mono.svg`](logo-mono.svg) • [`PNG`](logo-mono.png) | 512 × 512 px | Single-color white for dark backgrounds |
+| **Favicon** | [`assets/favicon.svg`](favicon.svg) • [`PNG`](favicon.png) | 32 × 32 px | Browser tabs, web app shortcut icons |
+| **Social Card Preview** | [`assets/social-preview.svg`](social-preview.svg) • [`PNG`](social-preview.png) | 1280 × 640 px | OpenGraph metadata, Twitter / Slack cards |
 
 ---
 
 ## 5. Usage Rules: Do's and Don'ts
 
 ### Do:
-- Use `assets/logo.svg` on dark backgrounds or centered within white documentation pages.
-- Use `assets/logo-mono.svg` for single-color print, monochrome badges, or embedding in dark/light terminals.
-- Maintain the original aspect ratio and geometry.
-- Keep the 2-tone simplicity.
+- Display `assets/logo-wordmark.svg` centered at 380–420px width in top-level documentation.
+- Maintain the two-tone wordmark split (Paper White `Onboard` + Signal Green `CI`).
+- Preserve the exact `#0B1220` container with `#22C55E` geometry.
+- Use `assets/logo-mono.svg` when placing the icon on custom branded backgrounds.
 
 ### Don't:
-- Do not apply drop shadows, 3D extrusions, or multi-stop gradients.
-- Do not rotate the checkpoint mark or skew the check angle.
-- Do not add text or extra icons inside the primary 512×512 mark.
-- Do not alter the green (`#22C55E`) or deep ink (`#0B1220`) shades.
-
----
-
-## 6. GitHub Action Branding
-
-GitHub Actions `action.yml` restricts `branding.icon` to a predefined set of GitHub Octicons (custom SVG paths cannot be rendered in GitHub Marketplace badges directly).
-* **Action Icon**: `check-circle`
-* **Action Color**: `green`
-* The official SVG mark remains `assets/logo.svg` across all repositories and documentation headers.
+- Do not revert to literal checkboxes, clipboards, or outlined square glyphs.
+- Do not apply drop shadows, rainbow gradients, or glowing neon filters.
+- Do not alter the proportions or skew the gateway angles.
