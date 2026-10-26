@@ -30,6 +30,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&flagTimeout, "timeout", "10m", "Execution timeout (e.g. 10m, 300s)")
 
 	RootCmd.AddCommand(checkCmd)
+	RootCmd.AddCommand(initCmd)
 	RootCmd.AddCommand(versionCmd)
 }
 

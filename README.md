@@ -69,7 +69,20 @@ go install github.com/Zerxen-dev/OnboardCI/cmd/onboardci@latest
 
 ## Quickstart
 
-### 1. Dry Run (Default)
+### 1. Initialize Configuration (Optional)
+
+Automatically detect your repository's tech stack and scaffold a `.onboardci.yml` starter file:
+
+```bash
+onboardci init
+```
+
+Preview without writing:
+```bash
+onboardci init --dry-run
+```
+
+### 2. Dry Run
 
 Inspect what commands OnboardCI extracts from your documentation without running anything:
 
