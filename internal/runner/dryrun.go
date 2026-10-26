@@ -27,9 +27,12 @@ func (r *DryRunner) Run(ctx context.Context, cwd string, cfg *config.Config, com
 		report.Steps = append(report.Steps, CommandResult{
 			Command:    cmd.Command,
 			StepType:   string(cmd.Type),
+			Source:     cmd.SourceFile,
 			SourceFile: cmd.SourceFile,
+			Line:       cmd.LineNumber,
 			LineNumber: cmd.LineNumber,
 			ExitCode:   0,
+			Status:     "passed",
 		})
 	}
 

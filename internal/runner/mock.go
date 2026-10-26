@@ -49,9 +49,12 @@ func (m *MockRunner) Run(ctx context.Context, cwd string, cfg *config.Config, co
 		res := CommandResult{
 			Command:    cmd.Command,
 			StepType:   string(cmd.Type),
+			Source:     cmd.SourceFile,
 			SourceFile: cmd.SourceFile,
+			Line:       cmd.LineNumber,
 			LineNumber: cmd.LineNumber,
 			ExitCode:   exitCode,
+			Status:     statusForExitCode(exitCode),
 			Stdout:     stdout,
 			Stderr:     stderr,
 			Duration:   10 * time.Millisecond,
@@ -60,6 +63,7 @@ func (m *MockRunner) Run(ctx context.Context, cwd string, cfg *config.Config, co
 		if exitCode != 0 {
 			reason, suggestion := DiagnoseFailure(stderr+"\n"+stdout, exitCode)
 			res.FailureReason = reason
+			res.Reason = reason
 			res.Suggestion = suggestion
 
 			report.Success = false
