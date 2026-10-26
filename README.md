@@ -47,15 +47,25 @@ Most open-source onboarding guides rot over time: an unmentioned environment var
 
 ## Installation
 
-### Via Go
+### 1. Homebrew
 
 ```bash
-go install github.com/Zerxen-dev/onboardci/cmd/onboardci@latest
+brew install Zerxen-dev/tap/onboardci
 ```
 
-### Pre-built Binaries
+### 2. Binary Installer
 
-Download pre-compiled binaries for Linux, macOS, and Windows from the [GitHub Releases](https://github.com/Zerxen-dev/onboardci/releases) page.
+```bash
+curl -fsSL https://raw.githubusercontent.com/Zerxen-dev/OnboardCI/main/scripts/install.sh | sh
+```
+
+Pre-compiled binaries for Linux, macOS, and Windows, as well as `.deb` and `.rpm` packages, are also available on the [Releases](https://github.com/Zerxen-dev/OnboardCI/releases) page.
+
+### 3. From Source
+
+```bash
+go install github.com/Zerxen-dev/OnboardCI/cmd/onboardci@latest
+```
 
 ---
 
