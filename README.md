@@ -19,6 +19,10 @@
   <strong>Status</strong>: Alpha — core check works; language presets limited to Node and generic shell.
 </p>
 
+<p align="center">
+  <img src="assets/demo.gif" alt="OnboardCI demo" width="880" />
+</p>
+
 ---
 
 ## What is OnboardCI?

@@ -92,6 +92,30 @@ GitHub does not provide a REST API endpoint for uploading repository OpenGraph s
 3. Click **Edit** → **Upload an image...**.
 4. Select `assets/social-preview.png` (1280×640 px).
 
+---
+
+## Regenerating the Demo
+
+When CLI output formatting or core diagnostic reporters are updated, re-record `assets/demo.gif`:
+
+1. Ensure [vhs](https://github.com/charmbracelet/vhs) is installed:
+   ```bash
+   go install github.com/charmbracelet/vhs@latest
+   # or via brew:
+   brew install vhs
+   ```
+2. Render the tape file:
+   ```bash
+   vhs docs/demo.tape
+   ```
+3. Alternatively, record using `asciinema` and render with `agg`:
+   ```bash
+   agg --cols 100 --rows 28 --font-size 16 --theme github-dark --last-frame-duration 3 demo.cast assets/demo.gif
+   gifsicle -O3 --lossy=80 assets/demo.gif -o assets/demo.gif
+   ffmpeg -y -i assets/demo.gif -movflags faststart -pix_fmt yuv420p assets/demo.mp4
+   ```
+4. Verify `assets/demo.gif` is ≤ 2MB before committing.
+
 
 ---
 

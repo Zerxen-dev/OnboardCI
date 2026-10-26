@@ -86,7 +86,20 @@ func runCheck(cmd *cobra.Command, args []string) error {
 
 	var activeRunner runner.Runner
 	if flagExecute && !flagDryRun {
-		activeRunner = runner.NewDockerRunner()
+		if os.Getenv("ONBOARDCI_SIMULATE") == "1" {
+			activeRunner = runner.NewMockRunner(map[string]runner.MockStepResponse{
+				"npm install": {
+					ExitCode: 0,
+					Stdout:   "added 1 package in 0.2s",
+				},
+				"npm test": {
+					ExitCode: 1,
+					Stderr:   "FAIL: missing env var DATABASE_URL",
+				},
+			})
+		} else {
+			activeRunner = runner.NewDockerRunner()
+		}
 	} else {
 		activeRunner = runner.NewDryRunner()
 	}
