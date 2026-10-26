@@ -2,6 +2,8 @@ package runner
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -36,6 +38,46 @@ var (
 	}
 )
 
+// findEnvTemplate returns the path to .env.example or .env.sample in the current
+// working directory, or "" if neither exists.
+func findEnvTemplate() string {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+	for _, name := range []string{".env.example", ".env.sample"} {
+		path := filepath.Join(cwd, name)
+		if info, err := os.Stat(path); err == nil && !info.IsDir() {
+			return path
+		}
+	}
+	return ""
+}
+
+// envTemplateHasVar reports whether the given variable name is documented in the
+// template file.
+func envTemplateHasVar(path, varName string) bool {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return false
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		// Strip optional "export " prefix.
+		line = strings.TrimPrefix(line, "export ")
+		if idx := strings.Index(line, "="); idx >= 0 {
+			key := strings.TrimSpace(line[:idx])
+			if key == varName {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // DiagnoseFailure analyzes output text and returns a human-friendly failure reason and suggestion.
 func DiagnoseFailure(output string, exitCode int) (string, string) {
 	combined := output
@@ -45,7 +87,11 @@ func DiagnoseFailure(output string, exitCode int) (string, string) {
 		matches := re.FindStringSubmatch(combined)
 		if len(matches) > 1 {
 			varName := strings.TrimSpace(matches[1])
-			return fmt.Sprintf("missing env var %s", varName), "document required env vars or provide .env.example"
+			suggestion := "document required env vars or provide .env.example"
+			if tmpl := findEnvTemplate(); tmpl != "" && envTemplateHasVar(tmpl, varName) {
+				suggestion = "Found .env.example with missing variable. Run cp .env.example .env and document required values."
+			}
+			return fmt.Sprintf("missing env var %s", varName), suggestion
 		}
 	}
 
