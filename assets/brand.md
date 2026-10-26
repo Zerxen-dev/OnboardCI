@@ -1,5 +1,9 @@
 # OnboardCI Brand Identity Guidelines
 
+<p align="center">
+  <img src="logo.png" width="140" alt="OnboardCI Logo" />
+</p>
+
 This document specifies the visual identity, design geometry, color palette, typography, clear-space rules, and usage policies for the OnboardCI open-source project.
 
 ---
