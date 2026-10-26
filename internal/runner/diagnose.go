@@ -89,7 +89,8 @@ func DiagnoseFailure(output string, exitCode int) (string, string) {
 			varName := strings.TrimSpace(matches[1])
 			suggestion := "document required env vars or provide .env.example"
 			if tmpl := findEnvTemplate(); tmpl != "" && envTemplateHasVar(tmpl, varName) {
-				suggestion = "Found .env.example with missing variable. Run cp .env.example .env and document required values."
+				base := filepath.Base(tmpl)
+				suggestion = fmt.Sprintf("Found %s with missing variable. Run cp %s .env and document required values.", base, base)
 			}
 			return fmt.Sprintf("missing env var %s", varName), suggestion
 		}

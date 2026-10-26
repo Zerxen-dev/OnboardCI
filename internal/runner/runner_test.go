@@ -2,6 +2,8 @@ package runner_test
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/Zerxen-dev/onboardci/internal/config"
@@ -58,6 +60,69 @@ func TestDiagnoseFailure_MissingEnvVar(t *testing.T) {
 	}
 	if suggestion != "document required env vars or provide .env.example" {
 		t.Errorf("unexpected suggestion: %s", suggestion)
+	}
+}
+
+func TestDiagnoseFailure_MissingEnvVar_WithEnvExample(t *testing.T) {
+	tmpDir := t.TempDir()
+	content := "# Configuration template\nDATABASE_URL=postgres://user:pass@localhost:5432/mydb\nPORT=3000\n"
+	if err := os.WriteFile(filepath.Join(tmpDir, ".env.example"), []byte(content), 0644); err != nil {
+		t.Fatalf("failed to write .env.example: %v", err)
+	}
+
+	t.Chdir(tmpDir)
+
+	output := "Error: missing env var DATABASE_URL\n    at Object.<anonymous> (/app/index.js:12:15)"
+	reason, suggestion := runner.DiagnoseFailure(output, 1)
+
+	if reason != "missing env var DATABASE_URL" {
+		t.Errorf("unexpected reason: %s", reason)
+	}
+	expectedSuggestion := "Found .env.example with missing variable. Run cp .env.example .env and document required values."
+	if suggestion != expectedSuggestion {
+		t.Errorf("expected suggestion %q, got %q", expectedSuggestion, suggestion)
+	}
+}
+
+func TestDiagnoseFailure_MissingEnvVar_WithEnvSample(t *testing.T) {
+	tmpDir := t.TempDir()
+	content := "export STRIPE_API_KEY=sk_test_12345\nexport WEBHOOK_SECRET=whsec_abc\n"
+	if err := os.WriteFile(filepath.Join(tmpDir, ".env.sample"), []byte(content), 0644); err != nil {
+		t.Fatalf("failed to write .env.sample: %v", err)
+	}
+
+	t.Chdir(tmpDir)
+
+	output := "TypeError: missing env var STRIPE_API_KEY"
+	reason, suggestion := runner.DiagnoseFailure(output, 1)
+
+	if reason != "missing env var STRIPE_API_KEY" {
+		t.Errorf("unexpected reason: %s", reason)
+	}
+	expectedSuggestion := "Found .env.sample with missing variable. Run cp .env.sample .env and document required values."
+	if suggestion != expectedSuggestion {
+		t.Errorf("expected suggestion %q, got %q", expectedSuggestion, suggestion)
+	}
+}
+
+func TestDiagnoseFailure_MissingEnvVar_NotInTemplate(t *testing.T) {
+	tmpDir := t.TempDir()
+	content := "PORT=8080\n"
+	if err := os.WriteFile(filepath.Join(tmpDir, ".env.example"), []byte(content), 0644); err != nil {
+		t.Fatalf("failed to write .env.example: %v", err)
+	}
+
+	t.Chdir(tmpDir)
+
+	output := "Error: missing env var REDIS_URL"
+	reason, suggestion := runner.DiagnoseFailure(output, 1)
+
+	if reason != "missing env var REDIS_URL" {
+		t.Errorf("unexpected reason: %s", reason)
+	}
+	expectedSuggestion := "document required env vars or provide .env.example"
+	if suggestion != expectedSuggestion {
+		t.Errorf("expected suggestion %q, got %q", expectedSuggestion, suggestion)
 	}
 }
 
