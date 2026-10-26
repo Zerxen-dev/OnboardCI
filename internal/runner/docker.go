@@ -142,6 +142,7 @@ func (r *DockerRunner) Run(ctx context.Context, cwd string, cfg *config.Config, 
 			combined := stderr + "\n" + stdout
 			reason, suggestion := DiagnoseFailure(combined, exitCode)
 			res.FailureReason = reason
+			res.Reason = reason
 			res.Suggestion = suggestion
 
 			report.Success = false
