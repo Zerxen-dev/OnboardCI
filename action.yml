@@ -1,0 +1,101 @@
+name: 'OnboardCI'
+description: 'Verify if a new contributor can set up and run tests following only your repository documentation.'
+author: 'Zerxen-dev'
+branding:
+  icon: 'check-circle'
+  color: 'green'
+
+inputs:
+  working-directory:
+    description: 'Target repository directory to verify'
+    required: false
+    default: '.'
+  execute:
+    description: 'Whether to execute commands inside Docker sandbox'
+    required: false
+    default: 'true'
+  config:
+    description: 'Path to custom .onboardci.yml config file'
+    required: false
+    default: ''
+  timeout:
+    description: 'Timeout duration for verification'
+    required: false
+    default: '10m'
+  github-token:
+    description: 'GitHub token for posting PR comments'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  status:
+    description: 'Onboarding check result: passed or failed'
+    value: ${{ steps.run-check.outputs.status }}
+  report-json:
+    description: 'Raw JSON report output'
+    value: ${{ steps.run-check.outputs.report_json }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '>=1.23'
+        cache: false
+
+    - name: Install OnboardCI
+      shell: bash
+      run: |
+        echo "::group::Install OnboardCI"
+        go install github.com/Zerxen-dev/onboardci/cmd/onboardci@latest || go build -o /usr/local/bin/onboardci ./cmd/onboardci
+        echo "::endgroup::"
+
+    - name: Run OnboardCI Check
+      id: run-check
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: |
+        CMD="onboardci check --cwd ${{ inputs.working-directory }} --timeout ${{ inputs.timeout }} --json"
+        if [ "${{ inputs.execute }}" = "true" ]; then
+          CMD="$CMD --execute"
+        fi
+        if [ -n "${{ inputs.config }}" ]; then
+          CMD="$CMD --config ${{ inputs.config }}"
+        fi
+
+        echo "Executing: $CMD"
+        set +e
+        OUTPUT=$($CMD)
+        EXIT_CODE=$?
+        set -e
+
+        echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+        echo "report_json=$OUTPUT" >> $GITHUB_OUTPUT
+
+        if [ $EXIT_CODE -eq 0 ]; then
+          echo "status=passed" >> $GITHUB_OUTPUT
+          echo "OnboardCI verification passed!"
+        else
+          echo "status=failed" >> $GITHUB_OUTPUT
+          echo "OnboardCI verification failed!"
+        fi
+
+        # PR Reporter: comment on pull request if token and PR context exist
+        if [ -n "${{ inputs.github-token }}" ] && [ "${{ github.event_name }}" = "pull_request" ]; then
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          if [ -n "$PR_NUMBER" ]; then
+            COMMENT_BODY="### OnboardCI Check Report"$'\n\n'
+            if [ $EXIT_CODE -eq 0 ]; then
+              COMMENT_BODY+=":white_check_mark: **Onboarding Docs Verified**: All setup and test steps completed successfully in a clean container."
+            else
+              COMMENT_BODY+=":x: **Onboarding Verification Failed**"$'\n\n'
+              COMMENT_BODY+='```text'$'\n'"$OUTPUT"$'\n''```'
+            fi
+
+            gh pr comment "$PR_NUMBER" --body "$COMMENT_BODY" || echo "Failed to post PR comment"
+          fi
+        fi
+
+        exit $EXIT_CODE

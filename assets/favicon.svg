@@ -1,0 +1,9 @@
+<svg viewBox="0 0 32 32" role="img">
+  <title>OnboardCI Favicon</title>
+  <desc>Simplified 32x32 checkpoint gate icon</desc>
+  <rect width="32" height="32" rx="6" fill="#0B1220"/>
+  <rect x="5" y="6" width="3" height="20" rx="1.5" fill="#22C55E"/>
+  <rect x="24" y="6" width="3" height="20" rx="1.5" fill="#22C55E"/>
+  <rect x="10" y="6" width="12" height="3" rx="1" fill="#22C55E"/>
+  <path d="M10 16 L14.5 20.5 L21.5 11" fill="none" stroke="#22C55E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,12 @@
+<svg viewBox="0 0 512 512" role="img">
+  <title>OnboardCI Checkpoint Gate Logo</title>
+  <desc>A geometric checkpoint gate reading as a verification checkmark framed by container walls</desc>
+  <rect width="512" height="512" rx="96" fill="#0B1220"/>
+  <!-- Container Wall Framing Bars -->
+  <rect x="88" y="96" width="36" height="320" rx="12" fill="#22C55E"/>
+  <rect x="388" y="96" width="36" height="320" rx="12" fill="#22C55E"/>
+  <!-- Checkpoint Gate Canopy Lintel -->
+  <rect x="156" y="96" width="200" height="36" rx="12" fill="#22C55E"/>
+  <!-- Checkpoint Verification Threshold (Checkmark) -->
+  <path d="M164 260 L236 332 L348 172" fill="none" stroke="#22C55E" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

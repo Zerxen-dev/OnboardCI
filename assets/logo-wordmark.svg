@@ -1,0 +1,16 @@
+<svg viewBox="0 0 960 240" role="img">
+  <title>OnboardCI Logo Wordmark</title>
+  <desc>OnboardCI checkpoint gate mark alongside the OnboardCI title and descriptor</desc>
+  <rect width="960" height="240" rx="32" fill="#0B1220"/>
+  <g transform="translate(30, 30) scale(0.3515625)">
+    <!-- Container Wall Framing Bars -->
+    <rect x="88" y="96" width="36" height="320" rx="12" fill="#22C55E"/>
+    <rect x="388" y="96" width="36" height="320" rx="12" fill="#22C55E"/>
+    <!-- Checkpoint Gate Canopy Lintel -->
+    <rect x="156" y="96" width="200" height="36" rx="12" fill="#22C55E"/>
+    <!-- Checkpoint Verification Threshold (Checkmark) -->
+    <path d="M164 260 L236 332 L348 172" fill="none" stroke="#22C55E" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="240" y="140" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="80" font-weight="700" letter-spacing="-2" fill="#F8FAFC">Onboard<tspan fill="#22C55E">CI</tspan></text>
+  <text x="244" y="180" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="24" font-weight="500" letter-spacing="0.5" fill="#64748B">Open-Source Onboarding Verifier</text>
+</svg>

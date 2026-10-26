@@ -1,0 +1,25 @@
+# Binaries
+bin/
+/onboardci
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test artifacts & coverage
+*.out
+*.test
+coverage.html
+testdata/temp/
+
+# Go workspace
+go.work
+go.work.sum
+
+# OS & Editor files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~

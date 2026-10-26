@@ -1,0 +1,214 @@
+PROJECT: OnboardCI — Open-Source Onboarding Verifier
+
+Mission
+
+Build, test, brand, and publish a production-ready open-source CLI tool called OnboardCI.
+It verifies whether a new contributor can set up an open-source repository by following only the documented setup and test steps, inside a clean container.
+
+Context (what OnboardCI does)
+
+OnboardCI reads README.md, CONTRIBUTING.md, or .onboardci.yml, extracts documented setup and test commands, executes them in a sandboxed Docker container, and reports exactly where a first-time contributor would fail.
+Primary output: a clear failure report pointing to the exact doc line and missing step.
+Secondary output: a GitHub Actions PR comment.
+Tertiary output: a recognizable logo and brand identity shipped with the repo.
+
+Skills required (use them)
+
+· Go (single-binary CLI): spf13/cobra for commands, gopkg.in/yaml.v3 for config.
+· Docker SDK for Go (or os/exec wrapping docker run): non-root, timeout, CPU/memory limits, no host mounts.
+· Markdown parsing: extract fenced bash/sh blocks from docs.
+· GitHub Actions authoring: wrapper action + PR reporter.
+· SVG design by hand: deterministic, editable, no external image APIs.
+· Open-source hygiene: LICENSE (Apache-2.0), README.md, CONTRIBUTING.md, SECURITY.md, CODE_OF_CONDUCT.md, Makefile.
+
+Phase 1 — Exploration & Plan (do this before writing code)
+
+1. Inspect the current workspace. Report what exists.
+2. Write an implementation plan artifact listing: directory structure, required Go modules, CLI command surface, config schema, test strategy, brand/logo plan, and CI workflow files.
+3. Wait for approval of the plan before moving to Phase 2.
+
+Phase 2 — Build the MVP (core logic)
+
+Implement all of the following. Keep the scope tight; no telemetry, no accounts, no remote execution beyond Docker.
+
+CLI surface
+
+· onboardci check — default dry-run: list extracted commands, do not execute.
+· onboardci check --execute — actually run in Docker.
+· onboardci check --json — machine-readable output.
+· --cwd <path> — target repository (default .).
+· --timeout <duration> — default 10m.
+· --config <path> — path to .onboardci.yml (default auto-detect).
+
+.onboardci.yml schema
+
+```yaml
+setup:
+  - npm ci
+test:
+  - npm test
+env:
+  - DATABASE_URL=sqlite://test.db
+docker:
+  image: node:20-alpine
+  timeout: 10m
+```
+
+Extraction logic
+
+· Prefer .onboardci.yml if present.
+· Else parse Markdown for fenced bash/sh blocks containing setup/test keywords (install, npm ci, pip install, make, go test, etc.).
+· Report source file and line number for every extracted command.
+
+Docker runner requirements
+
+· Non-root user inside container.
+· Timeout enforced with context cancellation.
+· CPU and memory limits via Docker flags.
+· No host bind mounts (copy the repo into the container).
+· Capture stdout/stderr; truncate to a sane limit.
+
+Report format (plain text)
+
+```text
+FAIL: README.md line 42
+Command: npm test
+Reason: missing env var DATABASE_URL
+Suggestion: document required env vars or provide .env.example
+```
+
+GitHub Action
+
+Create action.yml that:
+
+· Installs OnboardCI.
+· Runs onboardci check --execute --json.
+· Posts a PR comment summarizing failures (use GITHUB_TOKEN).
+
+Phase 3 — Tests (do this BEFORE calling the build "done")
+
+Verification-first: write tests, then make them pass.
+
+Unit tests (Go)
+
+· Markdown extraction: feed fixture READMEs; assert commands, file paths, line numbers.
+· YAML config parsing: valid + invalid cases.
+· Dry-run output formatting.
+
+Integration test
+
+· Spin up a fixture repository with a deliberately broken README (missing env var).
+· Run onboardci check --execute inside Docker.
+· Assert non-zero exit code and expected failure line in the report.
+
+Test command
+
+make test runs go test ./... -race plus the integration test (gated by -tags integration).
+
+Phase 4 — Brand & Logo
+
+Ship a complete, recognizable identity with zero external dependencies.
+
+Deliverables (all committed to the repo)
+
+· assets/logo.svg — primary mark, 512×512, scalable.
+· assets/logo-wordmark.svg — mark + "OnboardCI" wordmark.
+· assets/logo-mono.svg — single-color version for dark/light backgrounds.
+· assets/favicon.svg — 32×32 simplified mark.
+· assets/social-preview.svg — 1280×640 GitHub social preview.
+· assets/brand.md — palette (hex codes), typography stack, clear-space rules, do/don't usage.
+
+Logo design brief (follow this exactly)
+
+· Concept: a checkpoint gate — a doorway/threshold shape that also reads as a checkmark, framed by two vertical bars (like a container wall). It must communicate "pass through / verify at the gate."
+· Geometric construction: build on a 512×512 grid with a 64px safe margin. Use only circles, rounded rectangles, and straight lines. No text in the primary mark.
+· Palette (commit these hex values):
+  · Deep ink #0B1220 (background / dark mode)
+  · Signal green #22C55E (pass state)
+  · Warning amber #F59E0B (fail state)
+  · Paper white #F8FAFC (light mode background)
+  · Slate #64748B (secondary detail)
+· Style: flat, 2-tone max in the primary mark, 4px-equivalent corner radii at 512px scale, no gradients, no drop shadows, no stock iconography.
+· Accessibility: mark must remain legible at 32px; the mono version must hold contrast on both #0B1220 and #F8FAFC.
+· Do not trace or imitate existing open-source project logos. This is an original geometric mark.
+
+Implementation rules
+
+· Write the SVGs by hand as clean, minified-but-readable markup with viewBox, role="img", <title>, and <desc>.
+· No embedded raster images, no fonts converted to paths, no external references.
+· Validate each SVG (well-formed XML, no <script>, no external href).
+· Add assets/logo.svg to README.md at the top, centered, width 160.
+· Update action.yml with the logo as the action's branding.icon if a suitable icon exists; otherwise document the choice in assets/brand.md.
+
+Optional: external image-model prompt (do not block on this)
+
+If an image-generation tool is available in the environment, also save the following prompt to assets/logo-prompt.txt so maintainers can regenerate variants later:
+
+Flat vector logo mark, "checkpoint gate that reads as a checkmark," two vertical bars framing a rounded threshold, 2-color, signal green #22C55E on deep ink #0B1220, geometric, no text, no gradients, no shadows, centered on a 512×512 grid, 64px safe margin, crisp at 32px, open-source developer-tool aesthetic.
+
+The hand-authored SVGs remain the source of truth. The image-model prompt is documentation only.
+
+Logo verification
+
+· Render each SVG at 32px, 128px, and 512px; confirm legibility.
+· Confirm assets/logo.svg renders correctly on both #0B1220 and #F8FAFC.
+· Confirm no external references: grep -R "http" assets/*.svg returns nothing.
+
+Phase 5 — Open-source scaffolding
+
+Generate all of these:
+
+· README.md — logo at top, what it is, install (go install), quick start, config reference, non-goals, brand section linking assets/brand.md.
+· CONTRIBUTING.md — dev setup, how to add a language preset, how to run tests, how to propose brand changes.
+· LICENSE — Apache-2.0.
+· SECURITY.md — reporting policy; note OnboardCI executes docs in Docker and is opt-in.
+· CODE_OF_CONDUCT.md — Contributor Covenant.
+· Makefile — build, test, lint, install, assets (validates SVGs).
+· .gitignore — Go + IDE + OS files.
+· docs/non-goals.md — not a security scanner, not a CI replacement, no telemetry.
+
+Phase 6 — Verification loop
+
+1. Run make test. Fix every failure.
+2. Run onboardci check --execute against the fixture repo. Confirm it fails correctly.
+3. Run onboardci check --dry-run against the same fixture. Confirm it lists commands without executing.
+4. Run the Phase 4 logo verification checklist.
+5. Do not proceed to publishing until every check passes.
+
+Phase 7 — Publish to GitHub (use the gh helper)
+
+The gh CLI is expected to be installed and authenticated. Execute the equivalent of:
+
+```bash
+git init
+git add -A
+git commit -m "feat: initial OnboardCI MVP with brand assets"
+gh repo create OnboardCI --public --source=. --remote=origin --push
+```
+
+Then:
+
+· Set the repository description: "Verify that new contributors can actually set up your open-source repo by following your docs."
+· Add topics: developer-experience, open-source, onboarding, ci, cli, golang.
+· Upload assets/social-preview.svg as the GitHub social preview image if the API allows; otherwise document the manual step in the final report.
+· Open the repository URL in the output.
+
+If gh is not authenticated, stop and print a clear instruction to run gh auth login first.
+
+Constraints (non-negotiable)
+
+· No telemetry.
+· No network calls except Docker image pulls.
+· Dry-run is default; --execute must be explicit.
+· Apache-2.0 license.
+· Single Go binary; no runtime dependencies beyond Docker.
+· Original logo only — no traced or borrowed marks; SVG assets must be hand-authored and self-contained.
+· Keep the codebase small enough for a weekend contributor to understand.
+
+Final report (print at the end)
+
+1. Repo URL.
+2. Test results (make test summary).
+3. Integration test result.
+4. Logo verification checklist status.
+5. Any manual steps remaining (e.g., social preview upload).

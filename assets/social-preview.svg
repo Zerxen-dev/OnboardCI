@@ -1,0 +1,28 @@
+<svg viewBox="0 0 1280 640" role="img">
+  <title>OnboardCI Social Preview</title>
+  <desc>GitHub social preview banner for OnboardCI open-source onboarding verifier</desc>
+  <rect width="1280" height="640" fill="#0B1220"/>
+  <rect x="40" y="40" width="1200" height="560" rx="24" fill="none" stroke="#64748B" stroke-width="2" stroke-opacity="0.3"/>
+  <!-- Centered Scaled Logo Mark -->
+  <g transform="translate(100, 160) scale(0.625)">
+    <rect width="512" height="512" rx="96" fill="#0B1220"/>
+    <rect x="88" y="96" width="36" height="320" rx="12" fill="#22C55E"/>
+    <rect x="388" y="96" width="36" height="320" rx="12" fill="#22C55E"/>
+    <rect x="156" y="96" width="200" height="36" rx="12" fill="#22C55E"/>
+    <path d="M164 260 L236 332 L348 172" fill="none" stroke="#22C55E" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <!-- Text Content -->
+  <text x="480" y="250" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="76" font-weight="800" letter-spacing="-2" fill="#F8FAFC">Onboard<tspan fill="#22C55E">CI</tspan></text>
+  <text x="480" y="310" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="28" font-weight="600" fill="#22C55E">Open-Source Onboarding Verifier</text>
+  <text x="480" y="375" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="24" font-weight="400" fill="#94A3B8">Verify that new contributors can actually set up your</text>
+  <text x="480" y="415" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="24" font-weight="400" fill="#94A3B8">open-source repository by following only your docs.</text>
+  <!-- Feature Badges -->
+  <g transform="translate(480, 470)">
+    <rect x="0" y="0" width="160" height="36" rx="18" fill="#1E293B"/>
+    <text x="80" y="23" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#F8FAFC">Docker Sandboxed</text>
+    <rect x="175" y="0" width="145" height="36" rx="18" fill="#1E293B"/>
+    <text x="247" y="23" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#F8FAFC">Zero Telemetry</text>
+    <rect x="335" y="0" width="140" height="36" rx="18" fill="#1E293B"/>
+    <text x="405" y="23" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#22C55E">GitHub Action</text>
+  </g>
+</svg>

@@ -1,0 +1,9 @@
+setup:
+  - echo "Setting up environment..."
+test:
+  - echo "Running verification suite..."
+env:
+  - DATABASE_URL=sqlite://test.db
+docker:
+  image: alpine:latest
+  timeout: 5m
