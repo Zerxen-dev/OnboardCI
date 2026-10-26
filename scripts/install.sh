@@ -31,85 +31,85 @@ case "${ARCH}" in
     ;;
 esac
 
-# 3. Fetch latest release version from GitHub API
-RELEASE_URL="https://api.github.com/repos/${REPO}/releases/latest"
-RELEASE_JSON=""
-if command -v curl >/dev/null 2>&1; then
-  RELEASE_JSON="$(curl -sSL -H "Accept: application/vnd.github.v3+json" "${RELEASE_URL}" || true)"
-elif command -v wget >/dev/null 2>&1; then
-  RELEASE_JSON="$(wget -qO- "${RELEASE_URL}" || true)"
-else
-  echo "Error: Neither curl nor wget found in PATH." >&2
-  exit 1
+# 3. Determine release tag (allow VERSION env override, otherwise fetch from GitHub API)
+TAG_NAME="${VERSION:-}"
+if [ -z "${TAG_NAME}" ]; then
+  RELEASE_URL="https://api.github.com/repos/${REPO}/releases/latest"
+  if command -v curl >/dev/null 2>&1; then
+    RELEASE_JSON="$(curl -sSL -H "Accept: application/vnd.github.v3+json" "${RELEASE_URL}" 2>/dev/null || true)"
+  elif command -v wget >/dev/null 2>&1; then
+    RELEASE_JSON="$(wget -qO- "${RELEASE_URL}" 2>/dev/null || true)"
+  fi
+  TAG_NAME="$(echo "${RELEASE_JSON:-}" | grep -m1 '"tag_name":' | sed -E 's/.*"tag_name":[[:space:]]*"([^"]+)".*/\1/' || true)"
 fi
 
-TAG_NAME="$(echo "${RELEASE_JSON}" | grep -m1 '"tag_name":' | sed -E 's/.*"tag_name":[[:space:]]*"([^"]+)".*/\1/')"
-
 if [ -z "${TAG_NAME}" ]; then
-  # Fallback to fetching all releases if latest is a prerelease
   RELEASES_URL="https://api.github.com/repos/${REPO}/releases"
   if command -v curl >/dev/null 2>&1; then
-    RELEASE_JSON="$(curl -sSL -H "Accept: application/vnd.github.v3+json" "${RELEASES_URL}" || true)"
-  else
-    RELEASE_JSON="$(wget -qO- "${RELEASES_URL}" || true)"
+    RELEASE_JSON="$(curl -sSL -H "Accept: application/vnd.github.v3+json" "${RELEASES_URL}" 2>/dev/null || true)"
+  elif command -v wget >/dev/null 2>&1; then
+    RELEASE_JSON="$(wget -qO- "${RELEASES_URL}" 2>/dev/null || true)"
   fi
-  TAG_NAME="$(echo "${RELEASE_JSON}" | grep -m1 '"tag_name":' | sed -E 's/.*"tag_name":[[:space:]]*"([^"]+)".*/\1/')"
+  TAG_NAME="$(echo "${RELEASE_JSON:-}" | grep -m1 '"tag_name":' | sed -E 's/.*"tag_name":[[:space:]]*"([^"]+)".*/\1/' || true)"
 fi
 
 if [ -z "${TAG_NAME}" ]; then
-  echo "Error: Unable to determine latest release tag from GitHub." >&2
+  echo "Error: Unable to determine release tag from GitHub." >&2
   exit 1
 fi
 
-VERSION="${TAG_NAME#v}"
-ASSET_NAME="onboardci_${VERSION}_${OS}_${ARCH}.tar.gz"
-DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${TAG_NAME}/${ASSET_NAME}"
-CHECKSUMS_URL="https://github.com/${REPO}/releases/download/${TAG_NAME}/checksums.txt"
-
-# 4. Create temporary working directory
+# 4. Create temporary directory
 TMPDIR="$(mktemp -d 2>/dev/null || mktemp -d -t 'onboardci')"
 cleanup() {
   rm -rf "${TMPDIR}"
 }
 trap cleanup EXIT INT TERM
 
-echo "Downloading ${ASSET_NAME} (${TAG_NAME})..."
+# 5. Fetch checksums.txt
+CHECKSUMS_URL="https://github.com/${REPO}/releases/download/${TAG_NAME}/checksums.txt"
 if command -v curl >/dev/null 2>&1; then
-  curl -sSL -o "${TMPDIR}/${ASSET_NAME}" "${DOWNLOAD_URL}"
   curl -sSL -o "${TMPDIR}/checksums.txt" "${CHECKSUMS_URL}"
 else
-  wget -qO "${TMPDIR}/${ASSET_NAME}" "${DOWNLOAD_URL}"
   wget -qO "${TMPDIR}/checksums.txt" "${CHECKSUMS_URL}"
 fi
 
-# 5. Verify checksum
-EXPECTED_SHA="$(grep "${ASSET_NAME}" "${TMPDIR}/checksums.txt" | awk '{print $1}')"
-if [ -z "${EXPECTED_SHA}" ]; then
-  echo "Error: Checksum for ${ASSET_NAME} not found in checksums.txt" >&2
+# 6. Locate asset for OS/ARCH from checksums.txt
+MATCH_LINE="$(grep -E "[[:space:]]+.*${OS}.*${ARCH}\.tar\.gz$" "${TMPDIR}/checksums.txt" | head -n 1)"
+if [ -z "${MATCH_LINE}" ]; then
+  echo "Error: No matching archive found for ${OS}/${ARCH} in ${TAG_NAME} checksums." >&2
   exit 1
 fi
 
+EXPECTED_SHA="$(echo "${MATCH_LINE}" | awk '{print $1}')"
+ASSET_NAME="$(echo "${MATCH_LINE}" | awk '{print $2}')"
+DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${TAG_NAME}/${ASSET_NAME}"
+
+echo "Downloading ${ASSET_NAME} (${TAG_NAME})..."
+if command -v curl >/dev/null 2>&1; then
+  curl -sSL -o "${TMPDIR}/${ASSET_NAME}" "${DOWNLOAD_URL}"
+else
+  wget -qO "${TMPDIR}/${ASSET_NAME}" "${DOWNLOAD_URL}"
+fi
+
+# 7. Verify checksum integrity
 ACTUAL_SHA=""
 if command -v sha256sum >/dev/null 2>&1; then
   ACTUAL_SHA="$(sha256sum "${TMPDIR}/${ASSET_NAME}" | awk '{print $1}')"
 elif command -v shasum >/dev/null 2>&1; then
   ACTUAL_SHA="$(shasum -a 256 "${TMPDIR}/${ASSET_NAME}" | awk '{print $1}')"
-else
-  echo "Warning: sha256sum / shasum not available, skipping integrity verification."
-  ACTUAL_SHA="${EXPECTED_SHA}"
 fi
 
-if [ "${EXPECTED_SHA}" != "${ACTUAL_SHA}" ]; then
+if [ -n "${ACTUAL_SHA}" ] && [ "${EXPECTED_SHA}" != "${ACTUAL_SHA}" ]; then
   echo "Error: Checksum mismatch for ${ASSET_NAME}!" >&2
   echo "Expected: ${EXPECTED_SHA}" >&2
   echo "Got:      ${ACTUAL_SHA}" >&2
   exit 1
 fi
 
-# 6. Extract binary
+# 8. Extract binary
 tar -xzf "${TMPDIR}/${ASSET_NAME}" -C "${TMPDIR}"
 
-# 7. Determine installation destination
+# 9. Install binary
 INSTALL_DIR="/usr/local/bin"
 USE_SUDO=0
 
