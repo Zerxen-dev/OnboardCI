@@ -94,3 +94,68 @@ func TestExtractFromDirectory_Order(t *testing.T) {
 		t.Fatalf("expected 4 commands from README and CONTRIBUTING, got %d", len(cmds))
 	}
 }
+
+func TestExtractFromDirectory_PythonManifestFallback(t *testing.T) {
+	tempDir := t.TempDir()
+	_ = os.WriteFile(filepath.Join(tempDir, "requirements.txt"), []byte("pytest>=8.0.0\nrequests>=2.31.0\n"), 0644)
+
+	cmds, err := extractor.ExtractFromDirectory(tempDir)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(cmds) != 2 {
+		t.Fatalf("expected 2 synthesized commands, got %d", len(cmds))
+	}
+	if cmds[0].Command != "pip install -r requirements.txt" || cmds[0].Type != extractor.StepTypeSetup {
+		t.Errorf("unexpected setup command: %+v", cmds[0])
+	}
+	if cmds[1].Command != "pytest" || cmds[1].Type != extractor.StepTypeTest {
+		t.Errorf("unexpected test command: %+v", cmds[1])
+	}
+}
+
+func TestExtractFromDirectory_PoetryManifestFallback(t *testing.T) {
+	tempDir := t.TempDir()
+	_ = os.WriteFile(filepath.Join(tempDir, "pyproject.toml"), []byte("[tool.poetry]\nname = \"pkg\"\n"), 0644)
+	_ = os.WriteFile(filepath.Join(tempDir, "poetry.lock"), []byte(""), 0644)
+
+	cmds, err := extractor.ExtractFromDirectory(tempDir)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(cmds) != 2 {
+		t.Fatalf("expected 2 synthesized commands, got %d", len(cmds))
+	}
+	if cmds[0].Command != "poetry install" || cmds[0].Type != extractor.StepTypeSetup {
+		t.Errorf("unexpected setup command: %+v", cmds[0])
+	}
+	if cmds[1].Command != "pytest" || cmds[1].Type != extractor.StepTypeTest {
+		t.Errorf("unexpected test command: %+v", cmds[1])
+	}
+}
+
+func TestClassifyCommand_PythonCommands(t *testing.T) {
+	testCases := []struct {
+		cmd      string
+		wantType extractor.StepType
+		wantOk   bool
+	}{
+		{"pytest", extractor.StepTypeTest, true},
+		{"python3 -m unittest discover", extractor.StepTypeTest, true},
+		{"poetry run pytest", extractor.StepTypeTest, true},
+		{"tox", extractor.StepTypeTest, true},
+		{"pip install -r requirements.txt", extractor.StepTypeSetup, true},
+		{"uv pip install -e .", extractor.StepTypeSetup, true},
+		{"poetry install", extractor.StepTypeSetup, true},
+		{"pipenv install", extractor.StepTypeSetup, true},
+	}
+
+	for _, tc := range testCases {
+		stepType, ok := extractor.ClassifyCommand(tc.cmd)
+		if ok != tc.wantOk || stepType != tc.wantType {
+			t.Errorf("ClassifyCommand(%q) = (%v, %v), want (%v, %v)", tc.cmd, stepType, ok, tc.wantType, tc.wantOk)
+		}
+	}
+}

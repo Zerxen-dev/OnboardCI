@@ -66,10 +66,30 @@ func DefaultConfig() *Config {
 	}
 }
 
+// DetectDefaultImage inspects cwd for project manifests and selects the optimal default container image.
+func DetectDefaultImage(cwd string) string {
+	if isFile(filepath.Join(cwd, "requirements.txt")) || isFile(filepath.Join(cwd, "pyproject.toml")) || isFile(filepath.Join(cwd, "Pipfile")) {
+		return "python:3.12-slim"
+	}
+	if isFile(filepath.Join(cwd, "go.mod")) {
+		return "golang:1.23-alpine"
+	}
+	if isFile(filepath.Join(cwd, "Cargo.toml")) {
+		return "rust:alpine"
+	}
+	return "node:20-alpine"
+}
+
+func isFile(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && !info.IsDir()
+}
+
 // LoadConfig attempts to locate and parse .onboardci.yml or a custom config path.
 // If no file exists, it returns a default configuration with an empty path.
 func LoadConfig(cwd string, customPath string) (*Config, string, error) {
 	cfg := DefaultConfig()
+	cfg.Docker.Image = DetectDefaultImage(cwd)
 
 	var targetPath string
 	if customPath != "" {

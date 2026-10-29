@@ -136,5 +136,50 @@ func ExtractFromDirectory(cwd string) ([]ExtractedCommand, error) {
 		allCommands = append(allCommands, cmds...)
 	}
 
+	// Fallback to manifest-based extraction when docs do not contain executable commands
+	if len(allCommands) == 0 {
+		reqPath := filepath.Join(cwd, "requirements.txt")
+		if fileExists(reqPath) {
+			allCommands = append(allCommands,
+				ExtractedCommand{
+					SourceFile: "requirements.txt",
+					LineNumber: 1,
+					Type:       StepTypeSetup,
+					Command:    "pip install -r requirements.txt",
+				},
+				ExtractedCommand{
+					SourceFile: "requirements.txt",
+					LineNumber: 1,
+					Type:       StepTypeTest,
+					Command:    "pytest",
+				},
+			)
+		} else if pyprojPath := filepath.Join(cwd, "pyproject.toml"); fileExists(pyprojPath) {
+			setupCmd := "pip install ."
+			if fileExists(filepath.Join(cwd, "poetry.lock")) {
+				setupCmd = "poetry install"
+			}
+			allCommands = append(allCommands,
+				ExtractedCommand{
+					SourceFile: "pyproject.toml",
+					LineNumber: 1,
+					Type:       StepTypeSetup,
+					Command:    setupCmd,
+				},
+				ExtractedCommand{
+					SourceFile: "pyproject.toml",
+					LineNumber: 1,
+					Type:       StepTypeTest,
+					Command:    "pytest",
+				},
+			)
+		}
+	}
+
 	return allCommands, nil
+}
+
+func fileExists(path string) bool {
+	stat, err := os.Stat(path)
+	return err == nil && !stat.IsDir()
 }

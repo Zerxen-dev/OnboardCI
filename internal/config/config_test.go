@@ -30,6 +30,36 @@ func TestLoadConfig_Defaults(t *testing.T) {
 	}
 }
 
+func TestLoadConfig_AutoDetectPython(t *testing.T) {
+	tempDir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(tempDir, "requirements.txt"), []byte("pytest>=8.0.0\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, _, err := config.LoadConfig(tempDir, "")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if cfg.Docker.Image != "python:3.12-slim" {
+		t.Errorf("expected auto-detected python image python:3.12-slim, got %s", cfg.Docker.Image)
+	}
+}
+
+func TestLoadConfig_AutoDetectGo(t *testing.T) {
+	tempDir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(tempDir, "go.mod"), []byte("module test\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, _, err := config.LoadConfig(tempDir, "")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if cfg.Docker.Image != "golang:1.23-alpine" {
+		t.Errorf("expected auto-detected go image golang:1.23-alpine, got %s", cfg.Docker.Image)
+	}
+}
+
 func TestLoadConfig_ValidFile(t *testing.T) {
 	tempDir := t.TempDir()
 	configPath := filepath.Join(tempDir, ".onboardci.yml")
