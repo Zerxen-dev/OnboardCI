@@ -159,3 +159,117 @@ func TestClassifyCommand_PythonCommands(t *testing.T) {
 		}
 	}
 }
+
+func TestDetectPackageNames(t *testing.T) {
+	tmp := t.TempDir()
+
+	// 1. package.json with scoped name
+	pkgJSON := `{"name": "@types/webpack"}`
+	_ = os.WriteFile(filepath.Join(tmp, "package.json"), []byte(pkgJSON), 0644)
+
+	names := extractor.DetectPackageNames(tmp)
+	if len(names) != 2 || names[0] != "@types/webpack" || names[1] != "webpack" {
+		t.Errorf("unexpected package names from package.json: %v", names)
+	}
+
+	// 2. go.mod
+	tmpGo := t.TempDir()
+	_ = os.WriteFile(filepath.Join(tmpGo, "go.mod"), []byte("module github.com/pelletier/go-toml\n"), 0644)
+	namesGo := extractor.DetectPackageNames(tmpGo)
+	if len(namesGo) != 1 || namesGo[0] != "github.com/pelletier/go-toml" {
+		t.Errorf("unexpected package names from go.mod: %v", namesGo)
+	}
+
+	// 3. Cargo.toml
+	tmpRust := t.TempDir()
+	_ = os.WriteFile(filepath.Join(tmpRust, "Cargo.toml"), []byte("[package]\nname = \"serde\"\nversion = \"1.0.0\"\n"), 0644)
+	namesRust := extractor.DetectPackageNames(tmpRust)
+	if len(namesRust) != 1 || namesRust[0] != "serde" {
+		t.Errorf("unexpected package names from Cargo.toml: %v", namesRust)
+	}
+
+	// 4. pyproject.toml
+	tmpPy := t.TempDir()
+	_ = os.WriteFile(filepath.Join(tmpPy, "pyproject.toml"), []byte("[project]\nname = \"safety\"\nversion = \"2.0.0\"\n"), 0644)
+	namesPy := extractor.DetectPackageNames(tmpPy)
+	if len(namesPy) != 1 || namesPy[0] != "safety" {
+		t.Errorf("unexpected package names from pyproject.toml: %v", namesPy)
+	}
+}
+
+func TestIsConsumerCommand(t *testing.T) {
+	packages := []string{"fork-ts-checker-webpack-plugin", "safety", "github.com/pelletier/go-toml"}
+
+	tests := []struct {
+		cmd          string
+		wantConsumer bool
+	}{
+		{"npm install --save-dev fork-ts-checker-webpack-plugin", true},
+		{"yarn add --dev fork-ts-checker-webpack-plugin", true},
+		{"pnpm add fork-ts-checker-webpack-plugin", true},
+		{"bun add -d fork-ts-checker-webpack-plugin", true},
+		{"pip install safety", true},
+		{"pip3 install --upgrade safety", true},
+		{"go get github.com/pelletier/go-toml", true},
+		{"npm install -g my-cli", true},
+		{"yarn global add my-cli", true},
+		{"npm install", false},
+		{"npm ci", false},
+		{"yarn install", false},
+		{"pip install -r requirements.txt", false},
+		{"pip install -e .", false},
+		{"go mod download", false},
+		{"go test ./...", false},
+	}
+
+	for _, tc := range tests {
+		got := extractor.IsConsumerCommand(tc.cmd, packages, "")
+		if got != tc.wantConsumer {
+			t.Errorf("IsConsumerCommand(%q) = %v, want %v", tc.cmd, got, tc.wantConsumer)
+		}
+	}
+}
+
+func TestExtractFromDirectory_FiltersConsumerInstall(t *testing.T) {
+	tempDir := t.TempDir()
+
+	pkgJSON := `{"name": "fork-ts-checker-webpack-plugin"}`
+	_ = os.WriteFile(filepath.Join(tempDir, "package.json"), []byte(pkgJSON), 0644)
+
+	readme := `# fork-ts-checker-webpack-plugin
+
+## Installation
+
+` + "```bash\n" +
+		"npm install --save-dev fork-ts-checker-webpack-plugin\n" +
+		"yarn add --dev fork-ts-checker-webpack-plugin\n" +
+		"```\n"
+
+	contributing := `# Contributing
+
+## Development
+
+` + "```bash\n" +
+		"yarn install\n" +
+		"yarn test\n" +
+		"```\n"
+
+	_ = os.WriteFile(filepath.Join(tempDir, "README.md"), []byte(readme), 0644)
+	_ = os.WriteFile(filepath.Join(tempDir, "CONTRIBUTING.md"), []byte(contributing), 0644)
+
+	cmds, err := extractor.ExtractFromDirectory(tempDir)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Should filter out the 2 consumer installation commands and only keep the 2 contributing commands
+	if len(cmds) != 2 {
+		t.Fatalf("expected 2 contributor commands, got %d: %+v", len(cmds), cmds)
+	}
+	if cmds[0].Command != "yarn install" || cmds[0].Type != extractor.StepTypeSetup {
+		t.Errorf("expected yarn install, got %+v", cmds[0])
+	}
+	if cmds[1].Command != "yarn test" || cmds[1].Type != extractor.StepTypeTest {
+		t.Errorf("expected yarn test, got %+v", cmds[1])
+	}
+}

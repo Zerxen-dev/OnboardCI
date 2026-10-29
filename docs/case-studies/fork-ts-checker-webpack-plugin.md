@@ -4,7 +4,7 @@
 - **Ecosystem**: JavaScript / TypeScript
 - **Stars (at audit)**: 2,000
 - **Commit SHA Tested**: `9f70a3dcdaf216177b9b7b85426fc8e473bfad4e`
-- **Verdict**: `bug found` (Tracked in [Issue #6](https://github.com/Zerxen-dev/OnboardCI/issues/6))
+- **Verdict**: `resolved` (Fixed in [Issue #6](https://github.com/Zerxen-dev/OnboardCI/issues/6))
 
 ---
 
@@ -62,5 +62,5 @@ Error: failed to create docker container: Cannot connect to the Docker daemon at
 - OnboardCI extracted both as **contributor setup commands** because they contain `npm install` and `yarn add`.
 - Executing `npm install <self-package>` in a developer sandbox is circular and incorrect.
 
-### Follow-Up Action
-- Filed [Issue #6: Extractor: distinguish library consumer install commands from contributor setup](https://github.com/Zerxen-dev/OnboardCI/issues/6) with reproduction details.
+### Resolution
+- Fixed in [Issue #6](https://github.com/Zerxen-dev/OnboardCI/issues/6): `ExtractFromDirectory` automatically detects `package.json` package names and filters out self-referencing consumer installation commands (`npm install <own-pkg>`, `yarn add <own-pkg>`, etc.), accurately extracting only genuine contributor setup commands (`yarn install`).
